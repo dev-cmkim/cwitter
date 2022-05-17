@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+// import { authService } from "../firebase";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 
 // facebook
 // https://cwitter-b2e19.firebaseapp.com/__/auth/handler
@@ -6,6 +8,7 @@ import React, { useState } from "react";
 const Auth = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [newAcount, setNewAcount] = useState(true)
     const onChange = (e) => {
         const {target: {name, value}} = e;
         if (name === "email") {
@@ -15,11 +18,24 @@ const Auth = () => {
         }
         console.log(e.target.name)
     }
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
        e.preventDefault();
        console.log("로그인 계정:", email, password)
-
-    }
+       try {
+           let data;
+           const auth = getAuth();
+            if(newAcount) {
+                //계정생성
+                data = await createUserWithEmailAndPassword(auth, email, password)
+            } else {
+                //로그인
+                data = await signInWithEmailAndPassword(email,password)
+            }
+            console.log(data)
+       }catch(error) {
+           console.log(error)
+       }
+    };
     return (
         <div>
             <form onSubmit={onSubmit}>
@@ -37,7 +53,7 @@ const Auth = () => {
                     value={password} 
                     onChange={onChange}
                     required/>    
-                <input type="submit" value="Log In"/>    
+                <input type="submit" value={newAcount ? "계정생성" : "로그인"}/>    
             </form>    
             <div>
                 <button> Continue with Goggle</button>
